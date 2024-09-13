@@ -3,6 +3,7 @@ package cristianorocchi.gestioneviaggi.services;
 import cristianorocchi.gestioneviaggi.entities.Viaggio;
 import cristianorocchi.gestioneviaggi.exceptions.BadRequestException;
 import cristianorocchi.gestioneviaggi.exceptions.NotFoundException;
+import cristianorocchi.gestioneviaggi.payloads.NewViaggioDTO;
 import cristianorocchi.gestioneviaggi.repositories.ViaggioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,28 @@ public class ViaggioService {
     }
 
     public Viaggio salva(Viaggio viaggio) {
+        // Verifica dei campi obbligatori
+        if (viaggio.getDestinazione() == null || viaggio.getDestinazione().isEmpty()) {
+            throw new BadRequestException("La destinazione è obbligatoria.");
+        }
+        if (viaggio.getData() == null) {
+            throw new BadRequestException("La data è obbligatoria.");
+        }
+        if (viaggio.getStato() == null || viaggio.getStato().isEmpty()) {
+            throw new BadRequestException("Lo stato è obbligatorio.");
+        }
 
+        return viaggioRepository.save(viaggio);
+    }
+
+    public Viaggio creaViaggioDaDTO(NewViaggioDTO newViaggioDTO) {
+        // Mappatura da DTO a Entità
+        Viaggio viaggio = new Viaggio();
+        viaggio.setDestinazione(newViaggioDTO.destinazione());
+        viaggio.setData(newViaggioDTO.data());
+        viaggio.setStato(newViaggioDTO.stato());
+
+        // Verifica dei campi obbligatori
         if (viaggio.getDestinazione() == null || viaggio.getDestinazione().isEmpty()) {
             throw new BadRequestException("La destinazione è obbligatoria.");
         }
@@ -35,16 +57,27 @@ public class ViaggioService {
     }
 
     public Viaggio trovaPerId(Long viaggioId) {
-
         return viaggioRepository.findById(viaggioId)
-                .orElseThrow(() -> new NotFoundException("Viaggio con id"+ viaggioId +" non trovato" ));
+                .orElseThrow(() -> new NotFoundException("Viaggio con ID " + viaggioId + " non trovato"));
+    }
+
+    public Viaggio aggiornaViaggioDaDTO(Long viaggioId, NewViaggioDTO newViaggioDTO) {
+        Viaggio esistente = trovaPerId(viaggioId);
+        if (esistente == null) {
+            throw new NotFoundException("Viaggio con ID " + viaggioId + " non trovato");
+        }
+
+        esistente.setDestinazione(newViaggioDTO.destinazione());
+        esistente.setData(newViaggioDTO.data());
+        esistente.setStato(newViaggioDTO.stato());
+
+        return viaggioRepository.save(esistente);
     }
 
     public void cancella(Long viaggioId) {
-
         Viaggio viaggio = trovaPerId(viaggioId);
         if (viaggio == null) {
-            throw new NotFoundException("Viaggio con id " + viaggioId + " non trovato");
+            throw new NotFoundException("Viaggio con ID " + viaggioId + " non trovato");
         }
         viaggioRepository.delete(viaggio);
     }

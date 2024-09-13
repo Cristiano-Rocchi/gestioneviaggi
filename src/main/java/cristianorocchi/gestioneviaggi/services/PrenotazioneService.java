@@ -3,6 +3,7 @@ package cristianorocchi.gestioneviaggi.services;
 import cristianorocchi.gestioneviaggi.entities.Dipendente;
 import cristianorocchi.gestioneviaggi.entities.Prenotazione;
 import cristianorocchi.gestioneviaggi.entities.Viaggio;
+import cristianorocchi.gestioneviaggi.payloads.NewPrenotazioneDTO;
 import cristianorocchi.gestioneviaggi.repositories.DipendenteRepository;
 import cristianorocchi.gestioneviaggi.repositories.PrenotazioneRepository;
 import cristianorocchi.gestioneviaggi.repositories.ViaggioRepository;
@@ -29,15 +30,13 @@ public class PrenotazioneService {
 
     public Prenotazione trovaPerId(Long id) {
         Prenotazione prenotazione = prenotazioneRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("la prenotazione non è stata trovata"));
-
+                .orElseThrow(() -> new RuntimeException("La prenotazione non è stata trovata"));
 
         Dipendente dipendente = dipendenteRepository.findById(prenotazione.getDipendente().getId())
-                .orElseThrow(() -> new RuntimeException("il dipendente non è stato trovato"));
+                .orElseThrow(() -> new RuntimeException("Il dipendente non è stato trovato"));
 
         Viaggio viaggio = viaggioRepository.findById(prenotazione.getViaggio().getId())
-                .orElseThrow(() -> new RuntimeException("il viaggio non è stato trovato"));
-
+                .orElseThrow(() -> new RuntimeException("Il viaggio non è stato trovato"));
 
         prenotazione.setDipendente(dipendente);
         prenotazione.setViaggio(viaggio);
@@ -45,17 +44,38 @@ public class PrenotazioneService {
         return prenotazione;
     }
 
-    public Prenotazione salva(Prenotazione prenotazione) {
+    public Prenotazione salvaDaDTO(NewPrenotazioneDTO newPrenotazioneDTO) {
+        Dipendente dipendente = dipendenteRepository.findById(newPrenotazioneDTO.dipendenteId())
+                .orElseThrow(() -> new RuntimeException("Il dipendente non è stato trovato"));
 
-        Dipendente dipendente = dipendenteRepository.findById(prenotazione.getDipendente().getId())
-                .orElseThrow(() -> new RuntimeException("il dipendente non è stato trovato"));
+        Viaggio viaggio = viaggioRepository.findById(newPrenotazioneDTO.viaggioId())
+                .orElseThrow(() -> new RuntimeException("Il viaggio non è stato trovato"));
 
-        Viaggio viaggio = viaggioRepository.findById(prenotazione.getViaggio().getId())
-                .orElseThrow(() -> new RuntimeException("il viaggio non è stato trovato"));
+        Prenotazione prenotazione = new Prenotazione();
+        prenotazione.setDipendente(dipendente);
+        prenotazione.setViaggio(viaggio);
+        prenotazione.setDataRichiesta(newPrenotazioneDTO.dataRichiesta());
+        prenotazione.setNote(newPrenotazioneDTO.note());
+        prenotazione.setPreferenze(newPrenotazioneDTO.preferenze());
+
+        return prenotazioneRepository.save(prenotazione);
+    }
+
+    public Prenotazione aggiornaDaDTO(Long prenotazioneId, NewPrenotazioneDTO newPrenotazioneDTO) {
+        Prenotazione prenotazione = prenotazioneRepository.findById(prenotazioneId)
+                .orElseThrow(() -> new RuntimeException("La prenotazione non è stata trovata"));
+
+        Dipendente dipendente = dipendenteRepository.findById(newPrenotazioneDTO.dipendenteId())
+                .orElseThrow(() -> new RuntimeException("Il dipendente non è stato trovato"));
+
+        Viaggio viaggio = viaggioRepository.findById(newPrenotazioneDTO.viaggioId())
+                .orElseThrow(() -> new RuntimeException("Il viaggio non è stato trovato"));
 
         prenotazione.setDipendente(dipendente);
         prenotazione.setViaggio(viaggio);
-
+        prenotazione.setDataRichiesta(newPrenotazioneDTO.dataRichiesta());
+        prenotazione.setNote(newPrenotazioneDTO.note());
+        prenotazione.setPreferenze(newPrenotazioneDTO.preferenze());
 
         return prenotazioneRepository.save(prenotazione);
     }
@@ -64,15 +84,12 @@ public class PrenotazioneService {
         prenotazioneRepository.deleteById(id);
     }
 
-
-
-
     public Prenotazione assegnaDipendenteAViaggio(Long dipendenteId, Long viaggioId) {
         Dipendente dipendente = dipendenteRepository.findById(dipendenteId)
-                .orElseThrow(() -> new RuntimeException("il dipendente non è stato trovato"));
+                .orElseThrow(() -> new RuntimeException("Il dipendente non è stato trovato"));
 
         Viaggio viaggio = viaggioRepository.findById(viaggioId)
-                .orElseThrow(() -> new RuntimeException("il viaggio non è stato trovato"));
+                .orElseThrow(() -> new RuntimeException("Il viaggio non è stato trovato"));
 
         Prenotazione prenotazione = new Prenotazione();
         prenotazione.setDipendente(dipendente);
@@ -81,5 +98,4 @@ public class PrenotazioneService {
 
         return prenotazioneRepository.save(prenotazione);
     }
-
 }
