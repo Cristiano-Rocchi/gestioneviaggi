@@ -1,21 +1,20 @@
 package cristianorocchi.gestioneviaggi.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "prenotazione", uniqueConstraints = {@UniqueConstraint(columnNames = {"dipendente_id", "dataRichiesta"})})
 @Getter
 @Setter
+
 @NoArgsConstructor
 @AllArgsConstructor
 public class Prenotazione {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(AccessLevel.NONE)
     private Long id;
 
     @ManyToOne
