@@ -1,6 +1,8 @@
 package cristianorocchi.gestioneviaggi.controller;
 
 import cristianorocchi.gestioneviaggi.entities.Viaggio;
+import cristianorocchi.gestioneviaggi.exceptions.BadRequestException;
+import cristianorocchi.gestioneviaggi.exceptions.NotFoundException;
 import cristianorocchi.gestioneviaggi.services.ViaggioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/viaggi")
@@ -31,6 +31,16 @@ public class ViaggioController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Viaggio creaViaggio(@RequestBody Viaggio viaggio) {
+
+        if (viaggio.getDestinazione() == null || viaggio.getDestinazione().isEmpty()) {
+            throw new BadRequestException("La destinazione è obbligatoria.");
+        }
+        if (viaggio.getData() == null) {
+            throw new BadRequestException("La data è obbligatoria.");
+        }
+        if (viaggio.getStato() == null || viaggio.getStato().isEmpty()) {
+            throw new BadRequestException("Lo stato è obbligatorio.");
+        }
         return viaggioService.salva(viaggio);
     }
 
@@ -42,17 +52,24 @@ public class ViaggioController {
     @PutMapping("/{viaggioId}")
     public Viaggio aggiornaViaggio(@PathVariable Long viaggioId, @RequestBody Viaggio viaggio) {
         Viaggio esistente = viaggioService.trovaPerId(viaggioId);
+        if (esistente == null) {
+            throw new NotFoundException("Viaggio non trovato --> " + viaggioId);
+        }
+
         esistente.setDestinazione(viaggio.getDestinazione());
         esistente.setData(viaggio.getData());
         esistente.setStato(viaggio.getStato());
+
         return viaggioService.salva(esistente);
     }
 
     @DeleteMapping("/{viaggioId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancellaViaggio(@PathVariable Long viaggioId) {
-        viaggioService.cancella(viaggioId);
+        try {
+            viaggioService.cancella(viaggioId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Viaggio non trovato ---> " + viaggioId);
+        }
     }
 }
-
-
