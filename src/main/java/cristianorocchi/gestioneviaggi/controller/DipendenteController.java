@@ -3,6 +3,8 @@ package cristianorocchi.gestioneviaggi.controller;
 import cristianorocchi.gestioneviaggi.entities.Dipendente;
 import cristianorocchi.gestioneviaggi.payloads.NewDipendenteDTO;
 import cristianorocchi.gestioneviaggi.services.DipendenteService;
+import cristianorocchi.gestioneviaggi.exceptions.BadRequestException;
+import cristianorocchi.gestioneviaggi.exceptions.NotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/dipendenti")
@@ -35,6 +36,14 @@ public class DipendenteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Dipendente creaDipendente(@Valid @RequestBody NewDipendenteDTO newDipendenteDTO) {
+        // Verifica campi obbligatori
+        if (newDipendenteDTO.email() == null || newDipendenteDTO.email().isEmpty()) {
+            throw new BadRequestException("L'email del dipendente è obbligatoria.");
+        }
+        if (newDipendenteDTO.username() == null || newDipendenteDTO.username().isEmpty()) {
+            throw new BadRequestException("L'username del dipendente è obbligatorio.");
+        }
+
         Dipendente dipendente = new Dipendente();
         dipendente.setNome(newDipendenteDTO.nome());
         dipendente.setCognome(newDipendenteDTO.cognome());
@@ -53,6 +62,9 @@ public class DipendenteController {
     @PutMapping("/{dipendenteId}")
     public Dipendente aggiornaDipendente(@PathVariable Long dipendenteId, @Valid @RequestBody NewDipendenteDTO newDipendenteDTO) {
         Dipendente esistente = dipendenteService.trovaPerId(dipendenteId);
+        if (esistente == null) {
+            throw new NotFoundException("Dipendente non trovato con ID: " + dipendenteId);
+        }
 
         esistente.setUsername(newDipendenteDTO.username());
         esistente.setNome(newDipendenteDTO.nome());
@@ -66,13 +78,19 @@ public class DipendenteController {
     @DeleteMapping("/{dipendenteId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancellaDipendente(@PathVariable Long dipendenteId) {
-        dipendenteService.cancella(dipendenteId);
+        try {
+            dipendenteService.cancella(dipendenteId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Dipendente " + dipendenteId + " non trovato " );
+        }
     }
-
 
     @PostMapping("/{dipendenteId}/img")
     @ResponseStatus(HttpStatus.OK)
-    public Dipendente uploadImmagineProfilo(@PathVariable Long dipendenteId, @RequestParam("immagine") MultipartFile file) throws IOException {
+    public Dipendente uploadImmagineProfilo(@PathVariable Long dipendenteId, @RequestParam("img") MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            throw new BadRequestException("Il file dell'immagine è obbligatorio.");
+        }
         return dipendenteService.uploadImmagineProfilo(dipendenteId, file);
     }
 }
