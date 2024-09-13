@@ -21,7 +21,7 @@ public class Viaggio {
     private String destinazione;
 
     @Column(nullable = false)
-    private java.sql.Date data;
+    private String data;
 
     @Column(nullable = false)
     private String stato;

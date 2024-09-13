@@ -63,4 +63,23 @@ public class PrenotazioneService {
     public void cancella(Long id) {
         prenotazioneRepository.deleteById(id);
     }
+
+
+
+
+    public Prenotazione assegnaDipendenteAViaggio(Long dipendenteId, Long viaggioId) {
+        Dipendente dipendente = dipendenteRepository.findById(dipendenteId)
+                .orElseThrow(() -> new RuntimeException("il dipendente non è stato trovato"));
+
+        Viaggio viaggio = viaggioRepository.findById(viaggioId)
+                .orElseThrow(() -> new RuntimeException("il viaggio non è stato trovato"));
+
+        Prenotazione prenotazione = new Prenotazione();
+        prenotazione.setDipendente(dipendente);
+        prenotazione.setViaggio(viaggio);
+        prenotazione.setDataRichiesta(java.time.LocalDate.now().toString());
+
+        return prenotazioneRepository.save(prenotazione);
+    }
+
 }

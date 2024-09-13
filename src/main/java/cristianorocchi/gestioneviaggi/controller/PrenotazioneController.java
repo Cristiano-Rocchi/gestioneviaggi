@@ -51,4 +51,11 @@ public class PrenotazioneController {
     public void cancellaPrenotazione(@PathVariable Long prenotazioneId) {
         prenotazioneService.cancella(prenotazioneId);
     }
+
+
+    @PostMapping("/assegna")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Prenotazione assegnaDipendenteAViaggio(@RequestParam Long dipendenteId, @RequestParam Long viaggioId) {
+        return prenotazioneService.assegnaDipendenteAViaggio(dipendenteId, viaggioId);
+    }
 }

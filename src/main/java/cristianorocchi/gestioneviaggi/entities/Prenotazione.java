@@ -26,7 +26,7 @@ public class Prenotazione {
     private Viaggio viaggio;
 
     @Column(nullable = false)
-    private java.sql.Date dataRichiesta;
+    private String dataRichiesta;
 
     @Column
     private String note;

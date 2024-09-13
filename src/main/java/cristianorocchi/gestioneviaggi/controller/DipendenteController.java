@@ -1,14 +1,12 @@
 package cristianorocchi.gestioneviaggi.controller;
 
-
-
 import cristianorocchi.gestioneviaggi.entities.Dipendente;
+import cristianorocchi.gestioneviaggi.payloads.NewDipendenteDTO;
 import cristianorocchi.gestioneviaggi.services.DipendenteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 
@@ -26,7 +24,15 @@ public class DipendenteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Dipendente creaDipendente(@Valid @RequestBody Dipendente dipendente) {
+    public Dipendente creaDipendente(@Valid @RequestBody NewDipendenteDTO newDipendenteDTO) {
+
+        Dipendente dipendente = new Dipendente();
+        dipendente.setNome(newDipendenteDTO.nome());
+        dipendente.setCognome(newDipendenteDTO.cognome());
+        dipendente.setUsername(newDipendenteDTO.username());
+        dipendente.setEmail(newDipendenteDTO.email());
+        dipendente.setImmagineProfilo(newDipendenteDTO.immagineProfilo());
+
         return dipendenteService.salva(dipendente);
     }
 
@@ -36,13 +42,17 @@ public class DipendenteController {
     }
 
     @PutMapping("/{dipendenteId}")
-    public Dipendente aggiornaDipendente(@PathVariable Long dipendenteId, @RequestBody Dipendente dipendente) {
+    public Dipendente aggiornaDipendente(@PathVariable Long dipendenteId, @Valid @RequestBody NewDipendenteDTO newDipendenteDTO) {
+
         Dipendente esistente = dipendenteService.trovaPerId(dipendenteId);
-        esistente.setUsername(dipendente.getUsername());
-        esistente.setNome(dipendente.getNome());
-        esistente.setCognome(dipendente.getCognome());
-        esistente.setEmail(dipendente.getEmail());
-        esistente.setImmagineProfilo(dipendente.getImmagineProfilo());
+
+
+        esistente.setUsername(newDipendenteDTO.username());
+        esistente.setNome(newDipendenteDTO.nome());
+        esistente.setCognome(newDipendenteDTO.cognome());
+        esistente.setEmail(newDipendenteDTO.email());
+        esistente.setImmagineProfilo(newDipendenteDTO.immagineProfilo());
+
         return dipendenteService.salva(esistente);
     }
 
@@ -52,3 +62,4 @@ public class DipendenteController {
         dipendenteService.cancella(dipendenteId);
     }
 }
+

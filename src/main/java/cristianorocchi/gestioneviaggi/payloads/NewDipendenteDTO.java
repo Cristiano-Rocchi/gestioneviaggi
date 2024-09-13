@@ -1,0 +1,30 @@
+package cristianorocchi.gestioneviaggi.payloads;
+
+
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+
+public record NewDipendenteDTO(
+
+        @NotEmpty(message = "Il nome è obbligatorio")
+        @Size(min = 2, max = 40, message = "Il nome deve essere compreso tra 2 e 40 caratteri")
+        String nome,
+
+        @NotEmpty(message = "Il cognome è obbligatorio")
+        @Size(min = 2, max = 40, message = "Il cognome deve essere compreso tra 2 e 40 caratteri")
+        String cognome,
+
+        @NotEmpty(message = "L'username è obbligatorio")
+        @Size(min = 5, max = 20, message = "L'username deve essere compreso tra 5 e 20 caratteri")
+        String username,
+
+        @NotEmpty(message = "email obbligatoria")
+        @Email(message = "email inserita non è valida")
+        String email,
+
+        String immagineProfilo
+
+) {}
+
