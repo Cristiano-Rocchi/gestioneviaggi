@@ -3,6 +3,7 @@ package cristianorocchi.gestioneviaggi.controller;
 
 
 import cristianorocchi.gestioneviaggi.entities.Prenotazione;
+import cristianorocchi.gestioneviaggi.payloads.NewPrenotazioneDTO;
 import cristianorocchi.gestioneviaggi.services.PrenotazioneService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,8 @@ public class PrenotazioneController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Prenotazione creaPrenotazione(@Valid @RequestBody Prenotazione prenotazione) {
-        return prenotazioneService.salva(prenotazione);
+    public Prenotazione creaPrenotazione(@Valid @RequestBody NewPrenotazioneDTO newPrenotazioneDTO) {
+        return prenotazioneService.salvaDaDTO(newPrenotazioneDTO);
     }
 
     @GetMapping("/{prenotazioneId}")
@@ -36,15 +37,12 @@ public class PrenotazioneController {
     }
 
     @PutMapping("/{prenotazioneId}")
-    public Prenotazione aggiornaPrenotazione(@PathVariable Long prenotazioneId, @RequestBody Prenotazione prenotazione) {
-        Prenotazione esistente = prenotazioneService.trovaPerId(prenotazioneId);
-        esistente.setDipendente(prenotazione.getDipendente());
-        esistente.setViaggio(prenotazione.getViaggio());
-        esistente.setDataRichiesta(prenotazione.getDataRichiesta());
-        esistente.setNote(prenotazione.getNote());
-        esistente.setPreferenze(prenotazione.getPreferenze());
-        return prenotazioneService.salva(esistente);
+    public Prenotazione aggiornaPrenotazione(
+            @PathVariable Long prenotazioneId,
+            @Valid @RequestBody NewPrenotazioneDTO newPrenotazioneDTO) {
+        return prenotazioneService.aggiornaDaDTO(prenotazioneId, newPrenotazioneDTO);
     }
+
 
     @DeleteMapping("/{prenotazioneId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

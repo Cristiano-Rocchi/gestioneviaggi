@@ -51,6 +51,14 @@ public class PrenotazioneService {
         Viaggio viaggio = viaggioRepository.findById(newPrenotazioneDTO.viaggioId())
                 .orElseThrow(() -> new RuntimeException("Il viaggio non è stato trovato"));
 
+
+        boolean prenotazioneEsistente = prenotazioneRepository.existsByDipendenteIdAndDataRichiesta(
+                newPrenotazioneDTO.dipendenteId(), newPrenotazioneDTO.dataRichiesta());
+
+        if (prenotazioneEsistente) {
+            throw new RuntimeException("Il dipendente ha già una prenotazione per questa data.");
+        }
+
         Prenotazione prenotazione = new Prenotazione();
         prenotazione.setDipendente(dipendente);
         prenotazione.setViaggio(viaggio);
@@ -70,6 +78,14 @@ public class PrenotazioneService {
 
         Viaggio viaggio = viaggioRepository.findById(newPrenotazioneDTO.viaggioId())
                 .orElseThrow(() -> new RuntimeException("Il viaggio non è stato trovato"));
+
+        // Controlla se esiste già un'altra prenotazione per lo stesso dipendente nella stessa data
+        boolean prenotazioneEsistente = prenotazioneRepository.existsByDipendenteIdAndDataRichiestaAndIdNot(
+                newPrenotazioneDTO.dipendenteId(), newPrenotazioneDTO.dataRichiesta(), prenotazioneId);
+
+        if (prenotazioneEsistente) {
+            throw new RuntimeException("Il dipendente ha già una prenotazione per questa data.");
+        }
 
         prenotazione.setDipendente(dipendente);
         prenotazione.setViaggio(viaggio);
