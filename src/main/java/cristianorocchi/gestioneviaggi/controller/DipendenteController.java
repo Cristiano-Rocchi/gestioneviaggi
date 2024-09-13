@@ -5,6 +5,10 @@ import cristianorocchi.gestioneviaggi.payloads.NewDipendenteDTO;
 import cristianorocchi.gestioneviaggi.services.DipendenteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +22,17 @@ public class DipendenteController {
     private DipendenteService dipendenteService;
 
     @GetMapping
-    public List<Dipendente> trovaTuttiDipendenti() {
-        return dipendenteService.trovaTutti();
+    public Page<Dipendente> trovaTuttiDipendentiPaginati(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return dipendenteService.trovaTuttiPaginati(pageable);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Dipendente creaDipendente(@Valid @RequestBody NewDipendenteDTO newDipendenteDTO) {
-
         Dipendente dipendente = new Dipendente();
         dipendente.setNome(newDipendenteDTO.nome());
         dipendente.setCognome(newDipendenteDTO.cognome());
@@ -43,9 +50,7 @@ public class DipendenteController {
 
     @PutMapping("/{dipendenteId}")
     public Dipendente aggiornaDipendente(@PathVariable Long dipendenteId, @Valid @RequestBody NewDipendenteDTO newDipendenteDTO) {
-
         Dipendente esistente = dipendenteService.trovaPerId(dipendenteId);
-
 
         esistente.setUsername(newDipendenteDTO.username());
         esistente.setNome(newDipendenteDTO.nome());
@@ -62,4 +67,3 @@ public class DipendenteController {
         dipendenteService.cancella(dipendenteId);
     }
 }
-
