@@ -11,7 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,12 +24,12 @@ public class DipendenteController {
     private DipendenteService dipendenteService;
 
     @GetMapping
-    public Page<Dipendente> trovaTuttiDipendentiPaginati(
+    public Page<Dipendente> trovaTuttiDipendentiPageable(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return dipendenteService.trovaTuttiPaginati(pageable);
+        return dipendenteService.trovaTuttiPageable(pageable);
     }
 
     @PostMapping
@@ -65,5 +67,12 @@ public class DipendenteController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancellaDipendente(@PathVariable Long dipendenteId) {
         dipendenteService.cancella(dipendenteId);
+    }
+
+
+    @PostMapping("/{dipendenteId}/img")
+    @ResponseStatus(HttpStatus.OK)
+    public Dipendente uploadImmagineProfilo(@PathVariable Long dipendenteId, @RequestParam("immagine") MultipartFile file) throws IOException {
+        return dipendenteService.uploadImmagineProfilo(dipendenteId, file);
     }
 }

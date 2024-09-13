@@ -1,14 +1,14 @@
 package cristianorocchi.gestioneviaggi.controller;
 
-
-
 import cristianorocchi.gestioneviaggi.entities.Viaggio;
 import cristianorocchi.gestioneviaggi.services.ViaggioService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 
@@ -20,13 +20,17 @@ public class ViaggioController {
     private ViaggioService viaggioService;
 
     @GetMapping
-    public List<Viaggio> trovaTuttiViaggi() {
-        return viaggioService.trovaTutti();
+    public Page<Viaggio> trovaTuttiViaggiPageable(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return viaggioService.trovaTuttiPageable(pageable);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Viaggio creaViaggio(@Valid @RequestBody Viaggio viaggio) {
+    public Viaggio creaViaggio(@RequestBody Viaggio viaggio) {
         return viaggioService.salva(viaggio);
     }
 
@@ -50,4 +54,5 @@ public class ViaggioController {
         viaggioService.cancella(viaggioId);
     }
 }
+
 
